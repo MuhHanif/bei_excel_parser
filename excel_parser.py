@@ -79,8 +79,36 @@ class clean_sheet(object):
             sheet_dict[list_key[sheet]] = df
             pass
 
+        """
+        create flattening method for equity statement.
+        equity statement consist of 2d array and need
+        to be flattenend into 1d array to create final
+        dataframe for analysis.
+        """
+        sheet_list_stack = [4,5]
+        for sheet_stack in sheet_list_stack:
+            #first transpose to original table
+            df_stack = sheet_dict.get(list_key[sheet_stack]).T
+            #reseting index ? for unknown reason
+            df_stack.reset_index(inplace=True,drop=True)
+            #crop out uneccesary header
+            df_stack.columns = df_stack.iloc[5]
+            #set index with the rightmost data
+            df_stack.index = df_stack.iloc[:,25]
+            #flattening df into single column
+            df_stack = df_stack.iloc[6:,1:25]
+            df_stack = df_stack.stack().to_frame()
+            #removing multiindex and turn it into ordinary values
+            df_stack.reset_index(inplace=True)
+            #merging previously multiindex into single value
+            df_stack[2] = df_stack.iloc[:,0] +" "+ df_stack.iloc[:,1]
+            #get numeric values only then transpose
+            df_stack.index = df_stack[2]
+            df_stack = df_stack.iloc[:,2].to_frame().T
+            sheet_dict[list_key[sheet_stack]] = df_stack
+            pass
         print(sheet_dict)
-        pass
+        return(sheet_dict)
 
 
 #this class might be 3rd pr second to last pipelines
