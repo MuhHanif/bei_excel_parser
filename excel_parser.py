@@ -27,13 +27,61 @@ class load_excel(object):
         #load all sheet into odered dictionary
         for sheet in xlsx.sheet_names:
             file_sheet_dict[filename +" "+ sheet] = pd.read_excel(xlsx, sheet_name=sheet).T
-            print(file_sheet_dict[filename +" "+ sheet].shape)
+            #print(file_sheet_dict[filename +" "+ sheet].keys)
+        #print(file_sheet_dict.keys())
         return(file_sheet_dict)
 
     def list_all_files(self):
         #get all excel file names
         return(os.listdir(self.bulk_excel_dir))
 #there's should be another class here to combine and flatten data from previous dict
+
+class clean_sheet(object):
+    """
+    this class is the (2nd) second pipelines.
+    this class spesified for rearanging the sheet into one
+    chunk of tabular (dataframe) format. This class should
+    return single dataframe containing all data necessary
+    for further analysis.
+    """
+    def __init__(self, dir):
+        self.dir = dir
+
+    def flatten(self, excel_file):
+        """
+        get exctracted sheet from previous steps.
+        this code require both load excel class function
+        to run properly. highlighting this to track when
+        the code start turn into spaghetti.
+        """
+        #read dict
+        sheet_dict = load_excel(self.dir).open_load(excel_file)
+        #get keyname for addressing specific sheet
+        list_key = list(sheet_dict.keys())
+        """
+        general information sheet
+        drop the unnececary data and set some of the rows
+        into column names.
+        """
+        general_info = sheet_dict.get(list_key[1])
+        general_info.columns = general_info.iloc[2]
+        general_info = general_info.iloc[1].to_frame().T
+        sheet_dict[list_key[1]] = general_info
+
+        """
+        Same process with general information sheet
+        """
+        sheet_list = [2,3,6]
+        for sheet in sheet_list:
+            df = sheet_dict.get(list_key[sheet])
+            df.columns = df.iloc[3]
+            df = df.iloc[1].to_frame().T
+            sheet_dict[list_key[sheet]] = df
+            pass
+
+        print(sheet_dict)
+        pass
+
 
 #this class might be 3rd pr second to last pipelines
 class create_dict(object):
@@ -66,7 +114,9 @@ class create_dict(object):
 
 start = time.perf_counter()
 
-x = create_dict("excel_data").dict_pool()
+#x = create_dict("excel_data").dict_pool()
+x = clean_sheet("excel_data").flatten("AALI_2018_II.xlsx")
+
 finish = time.perf_counter()
 
 print(finish-start)
