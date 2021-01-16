@@ -85,7 +85,7 @@ class clean_sheet(object):
         to be flattenend into 1d array to create final
         dataframe for analysis.
         """
-        sheet_list_stack = [4,5]
+        sheet_list_stack = [4]
         for sheet_stack in sheet_list_stack:
             #first transpose to original table
             df_stack = sheet_dict.get(list_key[sheet_stack]).T
@@ -113,7 +113,7 @@ class clean_sheet(object):
         turn into single monolithic dataframe.
         """
         #emoving leftover index for transforming dataframe
-        df_sheet = [1,2,3,4,5,6]
+        df_sheet = [1,2,3,4,6]
         for df in df_sheet:
             sheet_df = sheet_dict.get(list_key[df])
             sheet_df.reset_index(inplace=True,drop=True)
@@ -125,9 +125,32 @@ class clean_sheet(object):
             data_concat = sheet_dict.get(list_key[data])
             completed_df = pd.concat([completed_df,data_concat], axis=1)
             pass
+        #drop uneccesary columns fill with N/A
+        completed_df = completed_df[completed_df.columns.dropna()]
+        """
+        https://stackoverflow.com/questions/30650474/
+        python-rename-duplicates-in-list-with-progressive-numbers-without-sorting-list
+        this below code copied from stackoverflow (link above).
+        i simply to lazy to create column name duplicate check.
+        """
+        list_col = list(completed_df.columns)
+        mylist = list_col[:]
+        dups = {}
+        for i, val in enumerate(mylist):
+            if val not in dups:
+                # Store index of first occurrence and occurrence value
+                dups[val] = [i, 1]
+            else:
+                # Special case for first occurrence
+                if dups[val][1] == 1:
+                    mylist[dups[val][0]] += str(dups[val][1])
+                # Increment occurrence value, index value doesn't matter anymore
+                dups[val][1] += 1
+                # Use stored occurrence value
+                mylist[i] += str(dups[val][1])
+        completed_df.columns = mylist
         #removing dictionary to free the memory
         del sheet_dict
-        print(completed_df)
         return(completed_df)
 
 
