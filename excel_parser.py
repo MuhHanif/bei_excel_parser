@@ -107,8 +107,28 @@ class clean_sheet(object):
             df_stack = df_stack.iloc[:,2].to_frame().T
             sheet_dict[list_key[sheet_stack]] = df_stack
             pass
-        print(sheet_dict)
-        return(sheet_dict)
+
+        """
+        combining all of the dataframe inside the dict.
+        turn into single monolithic dataframe.
+        """
+        #emoving leftover index for transforming dataframe
+        df_sheet = [1,2,3,4,5,6]
+        for df in df_sheet:
+            sheet_df = sheet_dict.get(list_key[df])
+            sheet_df.reset_index(inplace=True,drop=True)
+            sheet_dict[list_key[df]] = sheet_df
+            pass
+        #concatenating all of dataframe
+        completed_df = pd.DataFrame()
+        for data in df_sheet:
+            data_concat = sheet_dict.get(list_key[data])
+            completed_df = pd.concat([completed_df,data_concat], axis=1)
+            pass
+        #removing dictionary to free the memory
+        del sheet_dict
+        print(completed_df)
+        return(completed_df)
 
 
 #this class might be 3rd pr second to last pipelines
