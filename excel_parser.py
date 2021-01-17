@@ -155,6 +155,19 @@ class clean_sheet(object):
         del sheet_dict
         return(completed_df)
 
+class concatenate(object):
+    """
+    this class is the (3rd) third pipelines.
+    this class gather all of dataframe from
+    another excel files that have been processed
+    and combine it into 1 single dataframe.
+    """
+    def __init__(self, processed_df: clean_sheet, list_files: clean_sheet, read_files: load_excel):
+        self.processed_df = processed_df
+        self.list_files = list_files
+
+    def run(self):
+        print(self.processed_df)
 
 #this class might be 3rd pr second to last pipelines
 class create_dict(object):
@@ -183,13 +196,13 @@ class create_dict(object):
         print(dict.keys())
         return(dict)
 
-
-
 start = time.perf_counter()
 
 #x = create_dict("excel_data").dict_pool()
 dict = load_excel("excel_data").open_load("AALI_2018_II.xlsx")
+listdata = load_excel("excel_data").list_all_files()
 x = clean_sheet(dict).flatten()
+concatenate(x,listdata).run()
 
 finish = time.perf_counter()
 
