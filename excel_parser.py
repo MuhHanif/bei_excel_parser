@@ -44,18 +44,20 @@ class clean_sheet(object):
     return single dataframe containing all data necessary
     for further analysis.
     """
-    def __init__(self, dir):
-        self.dir = dir
+    def __init__(self, dict):
+        self.dict = dict
 
-    def flatten(self, excel_file):
+    def flatten(self):
         """
         get exctracted sheet from previous steps.
         this code require both load excel class function
         to run properly. highlighting this to track when
         the code start turn into spaghetti.
+        [EDIT] : get dictionary only instead calling another
+        class from this class. this should reduce code spaghettiism.
         """
         #read dict
-        sheet_dict = load_excel(self.dir).open_load(excel_file)
+        sheet_dict = self.dict
         #get keyname for addressing specific sheet
         list_key = list(sheet_dict.keys())
         """
@@ -157,7 +159,7 @@ class clean_sheet(object):
 #this class might be 3rd pr second to last pipelines
 class create_dict(object):
     """
-    this class is the (2nd) second pipelines.
+    this class is the (3rd) third pipelines.
     this class sepecified for creating dictionary of multiple sheet
     extracted from prev class. this class should return at least 2
     dictionary from excel sheet and transposed for further pipelines.
@@ -186,7 +188,8 @@ class create_dict(object):
 start = time.perf_counter()
 
 #x = create_dict("excel_data").dict_pool()
-x = clean_sheet("excel_data").flatten("AALI_2018_II.xlsx")
+dict = load_excel("excel_data").open_load("AALI_2018_II.xlsx")
+x = clean_sheet(dict).flatten()
 
 finish = time.perf_counter()
 
