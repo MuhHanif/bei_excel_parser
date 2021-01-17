@@ -176,9 +176,9 @@ class create_df(object):
         for count, files in enumerate(listdata[lower_limit:upper_limit]):
             dict = load_excel(dir).open_load(files)
             file_df = clean_sheet(dict).flatten()
-            df = pd.concat([df,file_df], axis=0)
+            df = pd.concat([df,file_df], axis=0, sort=False)
             #clear memory
             del file_df
-            print(count,files)
+            print(count+lower_limit,files)
             pass
         return(df)
