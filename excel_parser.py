@@ -34,7 +34,6 @@ class load_excel(object):
     def list_all_files(self):
         #get all excel file names
         return(os.listdir(self.bulk_excel_dir))
-#there's should be another class here to combine and flatten data from previous dict
 
 class clean_sheet(object):
     """
@@ -155,54 +154,34 @@ class clean_sheet(object):
         del sheet_dict
         return(completed_df)
 
-class concatenate(object):
+class create_df(object):
     """
     this class is the (3rd) third pipelines.
-    this class gather all of dataframe from
-    another excel files that have been processed
-    and combine it into 1 single dataframe.
-    """
-    def __init__(self, processed_df: clean_sheet, list_files: clean_sheet, read_files: load_excel):
-        self.processed_df = processed_df
-        self.list_files = list_files
-
-    def run(self):
-        print(self.processed_df)
-
-#this class might be 3rd pr second to last pipelines
-class create_dict(object):
-    """
-    this class is the (3rd) third pipelines.
-    this class sepecified for creating dictionary of multiple sheet
-    extracted from prev class. this class should return at least 2
-    dictionary from excel sheet and transposed for further pipelines.
+    this class dependend on previous class for
+    reading files, cleaning it then iterate.
+    simply put this class is act as the "executor"
+    class.
     """
     def __init__(self, dir):
         self.dir = dir
-
-    def dict_pool(self):
-        """
-        pooling all sheet into 1 monolithic dictionary
-        """
-        #use previous function from pipelines to load list of excel files
-        excel_file_list = load_excel(self.dir).list_all_files()
-        #create ordered dictionary for storing the sheet retreived
-        dict = OrderedDict()
-        #get all sheet from the list of excel files
-        for excel_file in excel_file_list:
-            y = load_excel(self.dir).open_load(excel_file)
-            print(excel_file)
-            z = dict.update(y)
-        print(dict.keys())
-        return(dict)
+    def run(self, lower_limit, upper_limit):
+        dir = self.dir
+        df = pd.DataFrame()
+        #load dir list
+        listdata = load_excel(dir).list_all_files()
+        for count, files in enumerate(listdata[lower_limit:upper_limit]):
+            dict = load_excel(dir).open_load(files)
+            file_df = clean_sheet(dict).flatten()
+            df = pd.concat([df,file_df], axis=0)
+            del file_df
+            #print(df    )
+            print(count,files)
+            pass
+        return(df)
 
 start = time.perf_counter()
 
-#x = create_dict("excel_data").dict_pool()
-dict = load_excel("excel_data").open_load("AALI_2018_II.xlsx")
-listdata = load_excel("excel_data").list_all_files()
-x = clean_sheet(dict).flatten()
-concatenate(x,listdata).run()
+df = create_df("excel_data").run(20,30)
 
 finish = time.perf_counter()
 
