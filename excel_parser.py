@@ -1,7 +1,6 @@
 import pandas as pd
 from collections import OrderedDict
 import os
-import time
 
 """
 this code follow waterflow steps, every class is for
@@ -162,27 +161,24 @@ class create_df(object):
     simply put this class is act as the "executor"
     class.
     """
-    def __init__(self, dir):
+    def __init__(self, dir, list_data):
+        #get list of excel file names
+        self.list_data = list_data
+        #directory of excel files
         self.dir = dir
     def run(self, lower_limit, upper_limit):
         dir = self.dir
+        #empty dataframe for appending loaded dataframe
         df = pd.DataFrame()
         #load dir list
-        listdata = load_excel(dir).list_all_files()
+        listdata = self.list_data
+        #loop trough list to create dataframe then append
         for count, files in enumerate(listdata[lower_limit:upper_limit]):
             dict = load_excel(dir).open_load(files)
             file_df = clean_sheet(dict).flatten()
             df = pd.concat([df,file_df], axis=0)
+            #clear memory
             del file_df
-            #print(df    )
             print(count,files)
             pass
         return(df)
-
-start = time.perf_counter()
-
-df = create_df("excel_data").run(20,30)
-
-finish = time.perf_counter()
-
-print(finish-start)
