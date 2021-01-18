@@ -64,7 +64,7 @@ class clean_sheet(object):
         into column names.
         """
         general_info = sheet_dict.get(list_key[1])
-        general_info.columns = general_info.iloc[2]
+        general_info.columns = general_info.iloc[0]
         general_info = general_info.iloc[1].to_frame().T
         sheet_dict[list_key[1]] = general_info
 
@@ -74,7 +74,7 @@ class clean_sheet(object):
         sheet_list = [2,3,6]
         for sheet in sheet_list:
             df = sheet_dict.get(list_key[sheet])
-            df.columns = df.iloc[3]
+            df.columns = df.iloc[0]
             df = df.iloc[1].to_frame().T
             sheet_dict[list_key[sheet]] = df
             pass
@@ -94,9 +94,9 @@ class clean_sheet(object):
             #crop out uneccesary header
             df_stack.columns = df_stack.iloc[5]
             #set index with the rightmost data
-            df_stack.index = df_stack.iloc[:,25]
+            df_stack.index = df_stack.iloc[:,0]
             #flattening df into single column
-            df_stack = df_stack.iloc[6:,1:25]
+            df_stack = df_stack.iloc[6:,1:]
             df_stack = df_stack.stack().to_frame()
             #removing multiindex and turn it into ordinary values
             df_stack.reset_index(inplace=True)
